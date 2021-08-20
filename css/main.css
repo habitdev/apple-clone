@@ -14,11 +14,26 @@ p {
 	line-height: 1.6;
 }
 
+a {
+	color: rgb(29, 29, 31);
+	text-decoration: none;
+}
+
+.global-nav,
+.local-nav {
+	padding: 0 1em;
+}
+
 .global-nav {
 	height: 44px;
 }
+.local-nav {
+	height: 52px;
+	border-bottom: 1px solid #ddd;
+}
 
-.global-nav-links {
+.global-nav-links,
+.local-nav-links {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
@@ -29,4 +44,75 @@ p {
 	height: 100%;
 	margin-left: auto;
 	margin-right: auto;
+}
+
+.global-nav-links {
+	justify-content: space-between;
+}
+
+.local-nav-links a {
+	font-size: 0.8rem;
+}
+
+.local-nav-links .product-name {
+	/* a태그 보다 구체적인 class를 가지고 있으므로 css 적용 우선순위에서 상위이다. */
+	margin-right: auto;
+	/* 
+		내가 가질 수 있는 여백을 전부 사용한다는 의미
+	 */
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+
+.local-nav-links a:not(.product-name) {
+	margin-left: 2em;
+}
+
+
+/* section */
+.scroll-section	{
+	padding-top: 50vh; 
+	/* 뷰포트 높이 */
+	/* 브라우저 높이의 절반만큼 padding을 준다 */
+}
+
+#scroll-section-0 h1 {
+	font-size: 4rem; 
+	/* html 기본 폰트 사이즈 * 4 */
+	text-align: center;
+}
+
+.main-message {
+	display: flex;
+	align-content: center;
+	justify-content: center;
+	height: 3em;
+	/*
+		scroll 시 고정된 높이에서 글자가 가운데에 정렬되어야 하고
+		위치이동에 대한 이슈를 없애기 위해 높이를 준다.
+	*/
+	margin: 5px 0;
+	font-size: 2.5rem;
+	background: rgba(0,0,0,0.3);
+}
+
+.main-message p {
+	font-weight: bold;
+	text-align: center;
+	line-height: 1.2;
+}
+
+.description {
+	padding: 0 1rem;
+	/* 
+		모든 콘텐츠들의 여백이 같아야하므로 padding 값의 단위를 rem으로 준다.
+	 */
+	font-size: 1.2rem;
+	color: #888;
+}
+.description strong {
+	float: left;
+	margin-right: 0.2em;
+	font-size: 3rem;
+	color: rgb(29, 29, 31);
 }
