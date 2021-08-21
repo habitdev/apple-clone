@@ -68,16 +68,15 @@ a {
 	margin-left: 2em;
 }
 
-
 /* section */
-.scroll-section	{
-	padding-top: 50vh; 
+.scroll-section {
+	padding-top: 50vh;
 	/* 뷰포트 높이 */
 	/* 브라우저 높이의 절반만큼 padding을 준다 */
 }
 
 #scroll-section-0 h1 {
-	font-size: 4rem; 
+	font-size: 4rem;
 	/* html 기본 폰트 사이즈 * 4 */
 	text-align: center;
 }
@@ -93,7 +92,6 @@ a {
 	*/
 	margin: 5px 0;
 	font-size: 2.5rem;
-	background: rgba(0,0,0,0.3);
 }
 
 .main-message p {
@@ -102,7 +100,20 @@ a {
 	line-height: 1.2;
 }
 
+.main-message small {
+	display: block;
+	font-size: 1.2rem;
+	margin-bottom: 0.5em;
+}
+
+#scroll-section-2 .main-message {
+	font-size: 3.5rem;
+}
+
 .description {
+	max-width: 1000px;
+	margin-left: auto;
+	margin-right: auto;
 	padding: 0 1rem;
 	/* 
 		모든 콘텐츠들의 여백이 같아야하므로 padding 값의 단위를 rem으로 준다.
@@ -115,4 +126,100 @@ a {
 	margin-right: 0.2em;
 	font-size: 3rem;
 	color: rgb(29, 29, 31);
+}
+
+.desc-message {
+	font-weight: bold;
+	width: 50%;
+}
+
+.pin {
+	width: 1px;
+	height: 100px;
+	background: rgb(29, 29, 31);
+}
+
+.mid-message {
+	max-width: 1000px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0 1rem;
+	font-size: 2rem;
+	color: #888;
+}
+
+.mid-message strong {
+	color: rgb(29, 29, 31);
+}
+
+.canvas-caption {
+	max-width: 1000px;
+	margin-left: auto;
+	margin-right: auto;
+	padding: 0 1rem;
+	color: #888;
+	font-size: 1.2rem;
+}
+.footer {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 7rem;
+	color: #fff;
+	background: darkorange;
+}
+
+.sticky-elem {
+	display: none;
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+}
+
+#show-scene-0 #scroll-section-0 .sticky-elem,
+#show-scene-1 #scroll-section-1 .sticky-elem,
+#show-scene-2 #scroll-section-2 .sticky-elem,
+#show-scene-3 #scroll-section-3 .sticky-elem {
+	display: block;
+}
+
+@media screen and (min-width: 1024px) {
+	#scroll-section-0 h1 {
+		font-size: 9vw;
+	}
+	.main-message {
+		font-size: 4vw;
+	}
+	.description {
+		font-size: 2rem;
+	}
+	.description strong {
+		font-size: 6rem;
+	}
+	#scroll-section-2 .main-message {
+		font-size: 6vw;
+	}
+	.main-message small {
+		font-size: 1.5vw;
+	}
+	.desc-message {
+		width: 20%;
+	}
+	.mid-message {
+		font-size: 4vw;
+	}
+	.canvas-caption {
+		font-size: 2rem;
+		/*
+			rem: 상대단위이지만 고정 값
+			vw: 창 크기에 대한 비율
+
+			# 다르게 사용하는 의미:
+			디자이너의 의도에 따라 다르게 한 것
+			애플의 경우 설명 글은 고정된 크기로 보여지고
+			타이틀의 경우는 창 크기에 따라 커지게 의도했기 때문에 이렇게 
+			작성한 것
+		*/
+	}
 }
