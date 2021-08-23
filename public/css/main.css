@@ -21,13 +21,18 @@ a {
 
 .global-nav,
 .local-nav {
+	position: absolute;
+	left: 0;
+	width: 100%;
 	padding: 0 1em;
 }
 
 .global-nav {
+	top: 0;
 	height: 44px;
 }
 .local-nav {
+	top: 45px;
 	height: 52px;
 	border-bottom: 1px solid #ddd;
 }
@@ -60,8 +65,12 @@ a {
 	/* 
 		내가 가질 수 있는 여백을 전부 사용한다는 의미
 	 */
-	font-size: 1.2rem;
+	font-size: 1.4rem;
 	font-weight: bold;
+}
+
+.local-nav-links a {
+	font-size: 0.8rem;
 }
 
 .local-nav-links a:not(.product-name) {
@@ -70,6 +79,7 @@ a {
 
 /* section */
 .scroll-section {
+	border: 3px solid red;
 	padding-top: 50vh;
 	/* 뷰포트 높이 */
 	/* 브라우저 높이의 절반만큼 padding을 준다 */
@@ -77,6 +87,7 @@ a {
 
 #scroll-section-0 h1 {
 	font-size: 4rem;
+	font-weight: 900;
 	/* html 기본 폰트 사이즈 * 4 */
 	text-align: center;
 }
