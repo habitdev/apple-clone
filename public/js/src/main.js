@@ -37,8 +37,12 @@
 					start, end는 스크롤 이벤트가 작동하는 비율이므로 소수점 단위이다
 					메시지 A는 10%~20%, B는 30%~40%
 				 */
-				messageA_opacity: [0, 1, { start: 0.1, end: 0.2 }],
-				messageB_opacity: [0, 1, { start: 0.3, end: 0.4 }],
+				messageA_opacity_in: [0, 1, { start: 0.1, end: 0.2 }],
+				messageA_opacity_out: [1, 0, { start: 0.25, end: 0.3 }],
+				//  등장하는 기준과 완전히 사라지는 기준의 중간 지점이 시작 지점이다
+				messageA_translateY_in: [20, 0, { start: 0.1, end: 0.2 }],
+				messageA_translateY_out: [0, -20, { start: 0.25, end: 0.3 }],
+				messageB_opacity_in: [0, 1, { start: 0.3, end: 0.4 }],
 			},
 		},
 		{
@@ -73,8 +77,13 @@
 	function setLayout() {
 		// 각 스크롤 섹션의 높이 셋팅
 		for (let i = 0; i < sceneInfo.length; i++) {
-			sceneInfo[i].scrollHeight = sceneInfo[i].heightNum * window.innerHeight;
+			if (sceneInfo[i].type === "sticky") {
+				sceneInfo[i].scrollHeight = sceneInfo[i].heightNum * window.innerHeight;
+			} else if(sceneInfo[i].type === 'normal') {
+				sceneInfo[i].scrollHeight = sceneInfo[i].objs.container.offsetHeight;
+			}
 			sceneInfo[i].objs.container.style.height = `${sceneInfo[i].scrollHeight}px`;
+
 			/*
                 기본적으로 문자열을 출력하지만
                 ${}의 내부엔 변수를 넣을 수 있다.
@@ -113,7 +122,7 @@
 				const partScrollHeight = partScrollEnd - partScrollStart; // 애니메이션이 적용될 구간의 높이
 
 				if (currentYOffset >= partScrollStart && currentYOffset <= partScrollEnd) {
-					rv = ((currentYOffset - partScrollStart) / partScrollHeight) * (values[1] - values[0]) + values[0];	
+					rv = ((currentYOffset - partScrollStart) / partScrollHeight) * (values[1] - values[0]) + values[0];
 				} else if (currentYOffset < partScrollStart) {
 					rv = values[0];
 				} else if (currentYOffset > partScrollStart) {
@@ -121,7 +130,7 @@
 				}
 
 				break;
-		
+
 			default:
 				rv = scrollRatio * (values[1] - values[0]) + values[0];
 				// 현재 전체 scene의 범위에서 지금 스크롤 된 영역의 비율
@@ -139,16 +148,26 @@
 		const objs = sceneInfo[currentScene].objs;
 		const values = sceneInfo[currentScene].values;
 		const currentYOffset = yOffset - prevScrollHeight;
+		const scrollHeight = sceneInfo[currentScene].scrollHeight;
+		const scrollRatio = currentYOffset / scrollHeight;
+		// 현재 씬에서 이전에 스크롤 한 섹션들의 높이를 yOffset에서 빼면 현재 스크롤 된 영역의 offset을 알수있다.
 
 		switch (currentScene) {
 			case 0:
 				// console.log('0 play');
-				let messageA_opacity_in = calcValues(values.messageA_opacity, currentYOffset);
-
-				console.log(messageA_opacity_in);
-
-				// let messageA_opacity_out = calcValues(values.messageA_opacity, currentYOffset);
-				objs.messageA.style.opacity = messageA_opacity_in;
+				/*
+					변수처리 했던 부분을 in/out일 경우에 계산하도록 
+					안에 넣어줌으로써 조금 더 연산할 때의 효율을 높일 수 있다.
+				 */
+				if (scrollRatio <= 0.22) {
+					// in
+					objs.messageA.style.opacity = calcValues(values.messageA_opacity_in, currentYOffset);
+					objs.messageA.style.transform = `translateY(${calcValues(values.messageA_translateY_in, currentYOffset)}%)`;
+				} else {
+					// out
+					objs.messageA.style.opacity = calcValues(values.messageA_opacity_out, currentYOffset);
+					objs.messageA.style.transform = `translateY(${calcValues(values.messageA_translateY_out, currentYOffset)}%)`;
+				}
 
 				break;
 			case 1:

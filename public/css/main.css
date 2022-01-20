@@ -92,10 +92,21 @@ a {
 	text-align: center;
 }
 
+#scroll-section-2 .msg--b {
+	top: 10%;
+	left: 40%;
+}
+
+#scroll-section-2 .msg--c {
+	top: 15%;
+	left: 45%;
+}
+
 .main-message {
 	display: flex;
 	align-content: center;
 	justify-content: center;
+	top: 35vh;
 	height: 3em;
 	/*
 		scroll 시 고정된 높이에서 글자가 가운데에 정렬되어야 하고
@@ -184,7 +195,6 @@ a {
 .sticky-elem {
 	display: none;
 	position: fixed;
-	top: 0;
 	left: 0;
 	width: 100%;
 }
@@ -196,6 +206,8 @@ a {
 	display: block;
 }
 
+
+ /* 데스크탑일 경우 */
 @media screen and (min-width: 1024px) {
 	#scroll-section-0 h1 {
 		font-size: 9vw;
@@ -211,6 +223,15 @@ a {
 	}
 	#scroll-section-2 .main-message {
 		font-size: 6vw;
+	}
+
+	#scroll-section-2 .msg--b {
+		top: 20%;
+		left: 53%;
+	}
+
+	#scroll-section-2 .msg--c {
+		left: 55%;
 	}
 	.main-message small {
 		font-size: 1.5vw;
