@@ -33,7 +33,12 @@
 				messageD: document.querySelector("#scroll-section-0 .main-message--d"),
 			},
 			values: {
-				messageA_opacity: [0, 1],
+				/* 
+					start, end는 스크롤 이벤트가 작동하는 비율이므로 소수점 단위이다
+					메시지 A는 10%~20%, B는 30%~40%
+				 */
+				messageA_opacity: [0, 1, { start: 0.1, end: 0.2 }],
+				messageB_opacity: [0, 1, { start: 0.3, end: 0.4 }],
 			},
 		},
 		{
@@ -90,14 +95,39 @@
 	}
 
 	function calcValues(values, currentYOffset) {
-		let rv; // return value
-
+		let rv; // return할 value
+		const scrollHeight = sceneInfo[currentScene].scrollHeight;
+		const scrollRatio = currentYOffset / sceneInfo[currentScene].scrollHeight;
 		/* 현재 스크롤 됐는 지에 대한 비율을 가져와야 얼만큼 스크롤 됐는 지 알수있다. */
 		// 현재 씬(스크롤 섹션)에서 스크롤된 범위를 비율로 가져온다.
+		/*
+			start와 end 값이 있는 경우는 분기점이 적용될 수 있도록 작성한다.
+		 */
 
-		let scrollRatio = currentYOffset / sceneInfo[currentScene].scrollHeight;
+		let key = values.length;
+		switch (key) {
+			case 3:
+				// start ~ end 사이에 스크롤 된 범위를 비율로 구하기
+				const partScrollStart = values[2].start * scrollHeight;
+				const partScrollEnd = values[2].end * scrollHeight;
+				const partScrollHeight = partScrollEnd - partScrollStart; // 애니메이션이 적용될 구간의 높이
 
-		rv = scrollRatio * (values[1] - values[0]) + values[0];
+				if (currentYOffset >= partScrollStart && currentYOffset <= partScrollEnd) {
+					rv = ((currentYOffset - partScrollStart) / partScrollHeight) * (values[1] - values[0]) + values[0];	
+				} else if (currentYOffset < partScrollStart) {
+					rv = values[0];
+				} else if (currentYOffset > partScrollStart) {
+					rv = values[1];
+				}
+
+				break;
+		
+			default:
+				rv = scrollRatio * (values[1] - values[0]) + values[0];
+				// 현재 전체 scene의 범위에서 지금 스크롤 된 영역의 비율
+
+				break;
+		}
 
 		return rv;
 	}
@@ -110,16 +140,15 @@
 		const values = sceneInfo[currentScene].values;
 		const currentYOffset = yOffset - prevScrollHeight;
 
-		console.log(currentScene);
-
 		switch (currentScene) {
 			case 0:
 				// console.log('0 play');
 				let messageA_opacity_in = calcValues(values.messageA_opacity, currentYOffset);
-				// let messageA_opacity_out = calcValues(values.messageA_opacity, currentYOffset);
-				objs.messageA.style.opacity = messageA_opacity_in;
 
 				console.log(messageA_opacity_in);
+
+				// let messageA_opacity_out = calcValues(values.messageA_opacity, currentYOffset);
+				objs.messageA.style.opacity = messageA_opacity_in;
 
 				break;
 			case 1:
@@ -141,7 +170,7 @@
             현재 스크롤한 위치 값을 얻는다.
             그대로 값을 사용해도 되지만 비디오 섹션에서 살짝 조절을 할 것이기 때문에 변수에 담을 것이다.
         */
-	   	enterNewScene = false; // 기본적으로 false 값이 들어가도록 한다.
+		enterNewScene = false; // 기본적으로 false 값이 들어가도록 한다.
 		prevScrollHeight = 0; // 스크롤 한 값이 누적되지 않도록 각 구간마다 초기화를 시켜준다.
 		for (let i = 0; i < currentScene; i++) {
 			/*
@@ -193,5 +222,5 @@
 	window.addEventListener("load", setLayout); // 리소스는 불러와지지 않고 구조만 불러와졌더라도 실행된다.
 	window.addEventListener("resize", setLayout); // 윈도우 창이 바뀌면 높이 자동설정되도록 변경
 
-	setLayout();
+	// setLayout();
 })();
