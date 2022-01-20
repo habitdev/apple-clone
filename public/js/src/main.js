@@ -7,6 +7,12 @@
         함수 자동 실행 
         변수를 지역으로 사용하기 위함
     */
+
+	let yOffset = 0; // window.pageYOffset 대신 쓸 변수
+	let prevScrollHeight = 0; // 현재 스크롤 위치(yOffset)보다 이전에 위치한 스크롤 섹션들의 스크롤 높이 값의 합
+	let currentScene = 0; // 현재 활성화된 씬 (눈 앞에 보고있는 스크롤 섹션)
+	let enterNewScene = false; // 새로운 scene이 시작되는 순간 true
+
 	const sceneInfo = [
 		{
 			// 0
@@ -27,7 +33,7 @@
 				messageD: document.querySelector("#scroll-section-0 .main-message--d"),
 			},
 			values: {
-				messageAop: [0, 1],
+				messageA_opacity: [0, 1],
 			},
 		},
 		{
@@ -59,10 +65,6 @@
 		},
 	];
 
-	let yOffset = 0; // window.pageYOffset 대신 쓸 변수
-	let prevScrollHeight = 0; // 현재 스크롤 위치(yOffset)보다 이전에 위치한 스크롤 섹션들의 스크롤 높이 값의 합
-	let currentScene = 0; // 현재 활성화된 씬 (눈 앞에 보고있는 스크롤 섹션)
-
 	function setLayout() {
 		// 각 스크롤 섹션의 높이 셋팅
 		for (let i = 0; i < sceneInfo.length; i++) {
@@ -82,27 +84,52 @@
 				/* 첫 로드 시에 현재 보여지고 있는 씬을 body에 셋팅하기 위한 작업 */
 
 				break;
-				/* scrollheight를 더하다가 현재 페이지의 y offset와 같거나 작을 때 더하는 것을 멈춰준다. */
+				/* scrollheight를 더하다가 현재 페이지의 y offset과 같거나 작을 때 더하는 것을 멈춰준다. */
 			}
 		}
+	}
+
+	function calcValues(values, currentYOffset) {
+		let rv; // return value
+
+		/* 현재 스크롤 됐는 지에 대한 비율을 가져와야 얼만큼 스크롤 됐는 지 알수있다. */
+		// 현재 씬(스크롤 섹션)에서 스크롤된 범위를 비율로 가져온다.
+
+		let scrollRatio = currentYOffset / sceneInfo[currentScene].scrollHeight;
+
+		rv = scrollRatio * (values[1] - values[0]) + values[0];
+
+		return rv;
 	}
 
 	function playAnimation() {
 		/*
 			현재 스크롤 되고 있는 섹션에 해당하는 애니메이션만 작동하도록 셋팅한다.
 		 */
+		const objs = sceneInfo[currentScene].objs;
+		const values = sceneInfo[currentScene].values;
+		const currentYOffset = yOffset - prevScrollHeight;
+
+		console.log(currentScene);
+
 		switch (currentScene) {
 			case 0:
-				console.log('0 play');
+				// console.log('0 play');
+				let messageA_opacity_in = calcValues(values.messageA_opacity, currentYOffset);
+				// let messageA_opacity_out = calcValues(values.messageA_opacity, currentYOffset);
+				objs.messageA.style.opacity = messageA_opacity_in;
+
+				console.log(messageA_opacity_in);
+
 				break;
 			case 1:
-				console.log('1 play');
+				// console.log('1 play');
 				break;
 			case 2:
-				console.log('2 play');
+				// console.log('2 play');
 				break;
 			case 3:
-				console.log('3 play');
+				// console.log('3 play');
 				break;
 		}
 	}
@@ -114,7 +141,7 @@
             현재 스크롤한 위치 값을 얻는다.
             그대로 값을 사용해도 되지만 비디오 섹션에서 살짝 조절을 할 것이기 때문에 변수에 담을 것이다.
         */
-
+	   	enterNewScene = false; // 기본적으로 false 값이 들어가도록 한다.
 		prevScrollHeight = 0; // 스크롤 한 값이 누적되지 않도록 각 구간마다 초기화를 시켜준다.
 		for (let i = 0; i < currentScene; i++) {
 			/*
@@ -134,10 +161,12 @@
 		}
 
 		if (yOffset > prevScrollHeight + sceneInfo[currentScene].scrollHeight) {
+			enterNewScene = true; // 섹션이 바뀌는 순간 true
 			currentScene++;
 		}
 
 		if (yOffset < prevScrollHeight) {
+			enterNewScene = true; // 섹션이 바뀌는 순간 true
 			if (currentScene === 0) {
 				/*
 					모바일 같은 경우 제일 상단에서 스크롤을 하면 bounce효과를 마이너스(-) 값으로 인식하는 경우가 있을 수 있으므로 이런 경우를 위해 지금 보여주는 씬이 0일 경우 종료한다.
@@ -149,7 +178,9 @@
 
 		// console.log(currentScene);
 		document.body.setAttribute("id", `show-scene-${currentScene}`);
-		
+
+		if (enterNewScene) return; // 새로운 scene이 시작되면 함수를 끝낸다.
+
 		playAnimation();
 	}
 
