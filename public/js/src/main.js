@@ -130,9 +130,11 @@
 				/* 
 					미리 그려질 박스의 자리만 잡아둔다
 					스크롤에 따라 유동적이므로 값을 넣지는 않는다.
+					=> 시작점, 끝점, start, end
 				*/
 				rect1X: [0, 0, { start: 0, end: 0 }],
 				rect2X: [0, 0, { start: 0, end: 0 }],
+				rectStartY: 0,
 			},
 		},
 	];
@@ -385,6 +387,7 @@
 				}
 
 				break;
+
 			case 3:
 				// console.log('3 play');
 				/*
@@ -411,8 +414,30 @@
 				objs.context.drawImage(objs.images[0], 0, 0);
 
 				// 캔버스 사이즈에 맞춰 가정한 innerWidth와 innerHeight
-				const recalculatedInnerWidth = window.innerWidth / canvasScaleRatio;
+				/* 
+					innerWidth은 브라우저의 스크롤 바의 크기도 포함한 크기이므로 
+					정확한 내부의 크기를 구하기 위해 body의 폭을 이용한다.
+				*/
+				// console.log(window.innerWidth, document.body.offsetWidth);
+				// console.log(window.innerWidth - document.body.offsetWidth);
+				const recalculatedInnerWidth = document.body.offsetWidth / canvasScaleRatio;
 				const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
+
+				
+
+				console.log("3 시작");
+
+				if (!values.rectStartY) {
+					/*
+						스크롤 할 때 시작하도록 하면
+						스크롤의 속도에 따라 기준 값이 변하므로 다른 방법으로 기준 값으로 잡아야 한다.
+					 */
+					values.rectStartY = objs.canvas.getBoundingClientRect().top;
+					console.log(values.rectStartY);
+					values.rect1X[2].end = values.rectStartY / scrollHeight;
+					values.rect2X[2].end = values.rectStartY / scrollHeight;
+					// scrollHeight: 현재 scene의 높이
+				}
 
 				const whiteRectWidth = recalculatedInnerWidth * 0.15;
 				// 왼쪽 박스
@@ -426,9 +451,20 @@
 				/*
 					objs.context.fillRect(x, y, width, height)
 				 */
-				objs.context.fillRect(values.rect1X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
-				objs.context.fillRect(values.rect2X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
-
+				// objs.context.fillRect(values.rect1X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
+				// objs.context.fillRect(values.rect2X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
+				objs.context.fillRect(
+					parseInt(calcValues(values.rect1X, currentYOffset))
+					, 0
+					, parseInt(whiteRectWidth)
+					, objs.canvas.height
+				);
+				objs.context.fillRect(
+					parseInt(calcValues(values.rect2X, currentYOffset))
+					, 0
+					, parseInt(whiteRectWidth)
+					, objs.canvas.height
+				);
 
 				break;
 		}
