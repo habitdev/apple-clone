@@ -81,6 +81,7 @@ a {
 
 /* section */
 .scroll-section {
+	position: relative;
 	padding-top: 50vh;
 	/* 뷰포트 높이 */
 	/* 브라우저 높이의 절반만큼 padding을 준다 */
@@ -212,6 +213,7 @@ a {
 #show-scene-2 #scroll-section-2 .sticky-elem,
 #show-scene-3 #scroll-section-3 .sticky-elem {
 	display: block;
+	will-change: transform, opacity;
 }
 
 .stick-elem-canvas {
@@ -235,12 +237,10 @@ a {
 	 */
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
 	align-items: center;
 }
 
 .image-blend-canvas {
-	background-color: aquamarine;
 }
 
 .image-blend-canvas canvas {
