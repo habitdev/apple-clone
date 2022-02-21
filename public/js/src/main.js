@@ -127,7 +127,12 @@
 				images: [], // 이용된 이미지를 push하는 배열
 			},
 			values: {
-				
+				/* 
+					미리 그려질 박스의 자리만 잡아둔다
+					스크롤에 따라 유동적이므로 값을 넣지는 않는다.
+				*/
+				rect1X: [0, 0, { start: 0, end: 0 }],
+				rect2X: [0, 0, { start: 0, end: 0 }],
 			},
 		},
 	];
@@ -160,8 +165,6 @@
 			imgElem3.src = sceneInfo[3].objs.imagesPath[index];
 			sceneInfo[3].objs.images.push(imgElem3);
 		}
-
-
 	}
 	setCanvasImages();
 
@@ -395,7 +398,6 @@
 				const widthRatio = window.innerWidth / objs.canvas.width; // 원래 캔버스 크기 분의 브라우저의 폭을 계산 => 비율을 구한다.
 				const heightRatio = window.innerHeight / objs.canvas.height;
 				let canvasScaleRatio;
-				console.log(widthRatio, heightRatio);
 
 				if (widthRatio <= heightRatio) {
 					// 캔버스보다 브라우저 창이 홀쭉한 경우
@@ -407,6 +409,26 @@
 
 				objs.canvas.style.transform = `scale(${canvasScaleRatio})`;
 				objs.context.drawImage(objs.images[0], 0, 0);
+
+				// 캔버스 사이즈에 맞춰 가정한 innerWidth와 innerHeight
+				const recalculatedInnerWidth = window.innerWidth / canvasScaleRatio;
+				const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
+
+				const whiteRectWidth = recalculatedInnerWidth * 0.15;
+				// 왼쪽 박스
+				values.rect1X[0] = (objs.canvas.width - recalculatedInnerWidth) / 2;
+				values.rect1X[1] = values.rect1X[0] - whiteRectWidth;
+
+				// 오른쪽 박스
+				values.rect2X[0] = values.rect1X[0] + recalculatedInnerWidth - whiteRectWidth;
+				values.rect2X[1] = values.rect2X[0] + whiteRectWidth;
+
+				/*
+					objs.context.fillRect(x, y, width, height)
+				 */
+				objs.context.fillRect(values.rect1X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
+				objs.context.fillRect(values.rect2X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
+
 
 				break;
 		}
@@ -480,7 +502,9 @@
 		// 이미지의 첫번째 이미지가 나오면 되므로 objs.videoImages[0]로 셋팅한다.
 
 		sceneInfo[2].objs.context.drawImage(sceneInfo[2].objs.videoImages[0], 0, 0);
-	}); // 리소스는 불러와지지 않고 구조만 불러와졌더라도 실행된다.
+	});
+	// 리소스는 불러와지지 않고 구조만 불러와졌더라도 실행된다.
+
 	window.addEventListener("resize", setLayout); // 윈도우 창이 바뀌면 높이 자동설정되도록 변경
 	/* 
 		setLayout의 경우 문서가 load, resize시에 모두 실행이 되므로
