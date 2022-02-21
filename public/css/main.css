@@ -157,6 +157,7 @@ a {
 }
 
 .desc-message {
+	opacity: 0;
 	font-weight: bold;
 	width: 50%;
 }

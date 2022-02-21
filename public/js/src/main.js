@@ -31,9 +31,9 @@
 				messageB: document.querySelector("#scroll-section-0 .main-message--b"),
 				messageC: document.querySelector("#scroll-section-0 .main-message--c"),
 				messageD: document.querySelector("#scroll-section-0 .main-message--d"),
-				canvas: document.querySelector('#video-canvas-0'),
-				context: document.querySelector('#video-canvas-0').getContext('2d'),
-				videoImages: []
+				canvas: document.querySelector("#video-canvas-0"),
+				context: document.querySelector("#video-canvas-0").getContext("2d"),
+				videoImages: [],
 			},
 			values: {
 				/* 
@@ -43,7 +43,7 @@
 				 */
 				videoImageCount: 300, // 이미지의 총 갯수는 300개
 				imagesSequence: [0, 299], // 이미지의 파일명이 0인 것부터 299까지
-				canvas_opacity: [1, 0, {start: 0.9, end: 1}], // canvas가 사라질 때의 opacity 애니메이션 셋팅
+				canvas_opacity: [1, 0, { start: 0.9, end: 1 }], // canvas가 사라질 때의 opacity 애니메이션 셋팅
 				messageA_opacity_in: [0, 1, { start: 0.1, end: 0.2 }],
 				messageB_opacity_in: [0, 1, { start: 0.3, end: 0.4 }],
 				messageC_opacity_in: [0, 1, { start: 0.5, end: 0.6 }],
@@ -84,8 +84,15 @@
 				messageC: document.querySelector("#scroll-section-2 .msg--c"),
 				pinB: document.querySelector("#scroll-section-2 .msg--b .pin"),
 				pinC: document.querySelector("#scroll-section-2 .msg--c .pin"),
+				canvas: document.querySelector("#video-canvas-1"),
+				context: document.querySelector("#video-canvas-1").getContext("2d"),
+				videoImages: [],
 			},
 			values: {
+				videoImageCount: 960, // 이미지의 총 갯수
+				imagesSequence: [0, 959], // 이미지의 파일명이 0인 것부터
+				canvas_opacity_in: [0, 1, { start: 0, end: 0.1 }], // canvas가 그려질 때 애니메이션
+				canvas_opacity_out: [1, 0, { start: 0.95, end: 1 }], // canvas가 사라질 때 애니메이션
 				messageA_translateY_in: [20, 0, { start: 0.15, end: 0.2 }],
 				messageB_translateY_in: [30, 0, { start: 0.5, end: 0.55 }],
 				messageC_translateY_in: [30, 0, { start: 0.72, end: 0.77 }],
@@ -119,20 +126,26 @@
 		},
 	];
 
-
 	function setCanvasImages() {
 		let imgElem;
 		for (let index = 0; index < sceneInfo[0].values.videoImageCount; index++) {
-			/**	
+			/**
 			 * 객체 생성
 			 * new Image(); 혹은
 			 * document.createElement('img')
 			 * 로 객체를 생성한다
 			 **/
-			imgElem = document.createElement('img');
+			imgElem = document.createElement("img");
 			imgElem.src = `./video/001/IMG_${6726 + index}.JPG`;
 			sceneInfo[0].objs.videoImages.push(imgElem);
 			/* 첫번째 씬에 해당하는 배열인 sceneInfo[0]에 설정을 해준다. */
+		}
+
+		let imgElem2;
+		for (let index = 0; index < sceneInfo[2].values.videoImageCount; index++) {
+			imgElem2 = document.createElement("img");
+			imgElem2.src = `./video/002/IMG_${7027 + index}.JPG`;
+			sceneInfo[2].objs.videoImages.push(imgElem2);
 		}
 	}
 	setCanvasImages();
@@ -164,9 +177,9 @@
 				/* scrollheight를 더하다가 현재 페이지의 y offset과 같거나 작을 때 더하는 것을 멈춰준다. */
 			}
 		}
-		document.body.setAttribute('id', `show-scene-${currentScene}`);
+		document.body.setAttribute("id", `show-scene-${currentScene}`);
 
-		const heightRatio = window.innerHeight / 1080; 
+		const heightRatio = window.innerHeight / 1080;
 		/*
 			이미지의 기준이 되는 1920 * 1080에서 높이에 해당하는 1080로 현재 창이 가지고 있는 높이를 나눌 경우
 			1080 대비 현재 창의 높이의 비율을 구할 수 있다.
@@ -174,10 +187,8 @@
 			css를 수정한다.
 			-> canvas의 위치를 50%씩 옮긴 후 translate로 다시 -50%씩 움직여 가운데로 정렬이 되도록 한다.
 		 */
-		sceneInfo[0].objs.canvas.style.transform = `translate3d(-50%, -50%, 0) scale(${heightRatio})`;
-
-
-
+		sceneInfo[0].objs.canvas.style.transform = `translate3d(-50%, -50%, 0) scale(${heightRatio})`; // 첫번째 section 애니메이션 셋팅
+		sceneInfo[2].objs.canvas.style.transform = `translate3d(-50%, -50%, 0) scale(${heightRatio})`;
 	}
 
 	function calcValues(values, currentYOffset) {
@@ -232,7 +243,7 @@
 		switch (currentScene) {
 			case 0:
 				// console.log('0 play');
-			
+
 				/*
 					변수처리 했던 부분을 in/out일 경우에 계산하도록 
 					안에 넣어줌으로써 조금 더 연산할 때의 효율을 높일 수 있다.
@@ -280,10 +291,7 @@
 				/* 
 					비디오의 경우 마우스를 스크롤 할 동안 계속 재생이 되므로
 					구간에 대한 설정을 따로 하지 않고 시작 값과 종료 값만 적어주면 된다.
-				*/
-				let sequence = Math.round(calcValues(values.imagesSequence, currentYOffset));
-				// console.log(sequence);
-				/* 
+
 					canvas에 그리기 위해 context를 사용하여 이미지 객체를 그린다.
 					objs.context.drawImage(그릴 이미지 src, x좌표, y좌표)
 					
@@ -297,7 +305,8 @@
 
 					### canvas의 경우 한번만 실행되면 되므로 비율에 따라 애니메이션을 구분하지 않아도 된다.
 				*/
-
+				let sequence = Math.round(calcValues(values.imagesSequence, currentYOffset));
+				// console.log(sequence);
 				objs.context.drawImage(objs.videoImages[sequence], 0, 0);
 				objs.canvas.style.opacity = calcValues(values.canvas_opacity, currentYOffset);
 
@@ -307,6 +316,14 @@
 				break;
 			case 2:
 				// console.log('2 play');
+
+				/*
+					let sequence의 경우 let으로 선언되어 있으므로 같은 공간에 동일한 변수명으로 선언된 변수가 있을 경우 오루가
+					난다. 따라서, 변수명을 sequence2와 같이 변경해서 겹치지 않도록 한다.
+				 */
+				let sequence2 = Math.round(calcValues(values.imagesSequence, currentYOffset));
+				objs.context.drawImage(objs.videoImages[sequence2], 0, 0);
+
 				if (scrollRatio <= 0.25) {
 					// in
 					objs.messageA.style.opacity = calcValues(values.messageA_opacity_in, currentYOffset);
@@ -315,6 +332,14 @@
 					// out
 					objs.messageA.style.opacity = calcValues(values.messageA_opacity_out, currentYOffset);
 					objs.messageA.style.transform = `translate3d(0, ${calcValues(values.messageA_translateY_out, currentYOffset)}%, 0)`;
+				}
+
+				if (scrollRatio <= 0.5) {
+					// in
+					objs.canvas.style.opacity = calcValues(values.canvas_opacity_in, currentYOffset);
+				} else {
+					// out
+					objs.canvas.style.opacity = calcValues(values.canvas_opacity_out, currentYOffset);
 				}
 
 				if (scrollRatio <= 0.57) {
@@ -340,7 +365,7 @@
 					objs.messageC.style.opacity = calcValues(values.messageC_opacity_out, currentYOffset);
 					objs.pinC.style.transform = `scaleY(${calcValues(values.pinC_scaleY, currentYOffset)})`;
 				}
-				
+
 				break;
 			case 3:
 				// console.log('3 play');
@@ -415,6 +440,7 @@
 		sceneInfo[0].objs.context.drawImage(sceneInfo[0].objs.videoImages[0], 0, 0);
 		// 이미지의 첫번째 이미지가 나오면 되므로 objs.videoImages[0]로 셋팅한다.
 
+		sceneInfo[2].objs.context.drawImage(sceneInfo[2].objs.videoImages[0], 0, 0);
 	}); // 리소스는 불러와지지 않고 구조만 불러와졌더라도 실행된다.
 	window.addEventListener("resize", setLayout); // 윈도우 창이 바뀌면 높이 자동설정되도록 변경
 	/* 
