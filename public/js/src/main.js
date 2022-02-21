@@ -387,7 +387,7 @@
 				}
 
 				/* 3번의 canvas를 미리 그려주지 않으면 3에서 canvas가 나올 때 부자연스럽다 */
-				if (scrollRatio <= 0.9) {
+				if (scrollRatio > 0.9) {
 					/*
 					blend-canvas의 경우 
 					화면의 크기나 비율에 따라 scale 등의 속성이 유동적으로 변해야 하므로
@@ -396,8 +396,8 @@
 					==> 가로/세로 모두 꽉 차게 하기 위해 여기서 세팅(계산 필요)
 				 */
 					const objs = sceneInfo[3].objs;
-					const widthRatio = window.innerWidth / objs.canvas.width; 
-					// 원래 캔버스 크기 분의 브라우저의 폭을 계산 => 비율을 구한다.
+					const values = sceneInfo[3].values;
+					const widthRatio = window.innerWidth / objs.canvas.width;
 					const heightRatio = window.innerHeight / objs.canvas.height;
 					let canvasScaleRatio;
 
@@ -423,32 +423,6 @@
 					const recalculatedInnerWidth = document.body.offsetWidth / canvasScaleRatio;
 					const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
 
-					if (!values.rectStartY) {
-						/*
-						스크롤 할 때 시작하도록 하면
-						스크롤의 속도에 따라 기준 값이 변하므로 다른 방법으로 기준 값으로 잡아야 한다.
-
-						objs.canvas.offsetTop은 문서의 제일 상단에서부터 canvas까지의 거리
-						offsetTop은 css로 기준이 되는 위치 값을 바꿀 수 있다
-						따라서, 부모 section의 position이 기준이 되도록 position: relative로 해준다.
-
-						objs.canvas.offsetTop으로만 값을 구하면 scale을 적용한 후의 위치 값과는 다르므로
-						scale을 하고 나서의 offsetTop을 구할 수 있도록 해야한다
-
-						==> 줄어들기 전 canvas의 높이 - 줄어든 후 canvas의 높이를 현재 canvas의 offsetTop에 더한다
-						더한 값은 위와 아래의 여백을 더한 값과 동일하므로 2로 나눈다.
-					 */
-						// values.rectStartY = objs.canvas.getBoundingClientRect().top;
-						values.rectStartY = objs.canvas.offsetTop - (objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2;
-						console.log(values.rectStartY);
-
-						values.rect1X[2].start = window.innerHeight / 2 / scrollHeight;
-						values.rect2X[2].start = window.innerHeight / 2 / scrollHeight;
-						values.rect1X[2].end = values.rectStartY / scrollHeight;
-						values.rect2X[2].end = values.rectStartY / scrollHeight;
-						// scrollHeight: 현재 scene의 높이
-					}
-
 					const whiteRectWidth = recalculatedInnerWidth * 0.15;
 					// 왼쪽 박스
 					values.rect1X[0] = (objs.canvas.width - recalculatedInnerWidth) / 2;
@@ -458,13 +432,18 @@
 					values.rect2X[0] = values.rect1X[0] + recalculatedInnerWidth - whiteRectWidth;
 					values.rect2X[1] = values.rect2X[0] + whiteRectWidth;
 
-					/*
-					objs.context.fillRect(x, y, width, height)
-				 */
-					// objs.context.fillRect(values.rect1X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
-					// objs.context.fillRect(values.rect2X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
-					objs.context.fillRect(parseInt(calcValues(values.rect1X, currentYOffset)), 0, parseInt(whiteRectWidth), objs.canvas.height);
-					objs.context.fillRect(parseInt(calcValues(values.rect2X, currentYOffset)), 0, parseInt(whiteRectWidth), objs.canvas.height);
+					objs.context.fillRect(
+						parseInt(values.rect1X[0]),
+						0,
+						parseInt(whiteRectWidth),
+						objs.canvas.height
+					);
+					objs.context.fillRect(
+						parseInt(values.rect2X[0]),
+						0,
+						parseInt(whiteRectWidth),
+						objs.canvas.height
+					);
 				}
 
 				break;
