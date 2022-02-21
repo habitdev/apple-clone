@@ -121,8 +121,14 @@
 			objs: {
 				container: document.querySelector("#scroll-section-3"),
 				canvasCaption: document.querySelector(".canvas-caption"),
+				canvas: document.querySelector(".image-blend-canvas"),
+				context: document.querySelector(".image-blend-canvas").getContext("2d"),
+				imagesPath: ["./images/blend-image-1.jpg", "./images/blend-image-2.jpg"],
+				images: [], // 이용된 이미지를 push하는 배열
 			},
-			values: {},
+			values: {
+				
+			},
 		},
 	];
 
@@ -147,6 +153,15 @@
 			imgElem2.src = `./video/002/IMG_${7027 + index}.JPG`;
 			sceneInfo[2].objs.videoImages.push(imgElem2);
 		}
+
+		let imgElem3;
+		for (let index = 0; index < sceneInfo[3].objs.imagesPath.length; index++) {
+			imgElem3 = document.createElement("img");
+			imgElem3.src = sceneInfo[3].objs.imagesPath[index];
+			sceneInfo[3].objs.images.push(imgElem3);
+		}
+
+
 	}
 	setCanvasImages();
 
@@ -369,6 +384,30 @@
 				break;
 			case 3:
 				// console.log('3 play');
+				/*
+					blend-canvas의 경우 
+					화면의 크기나 비율에 따라 scale 등의 속성이 유동적으로 변해야 하므로
+					스크롤할 때 마다 계산을 하도록 설정한다.
+
+					==> 가로/세로 모두 꽉 차게 하기 위해 여기서 세팅(계산 필요)
+				 */
+
+				const widthRatio = window.innerWidth / objs.canvas.width; // 원래 캔버스 크기 분의 브라우저의 폭을 계산 => 비율을 구한다.
+				const heightRatio = window.innerHeight / objs.canvas.height;
+				let canvasScaleRatio;
+				console.log(widthRatio, heightRatio);
+
+				if (widthRatio <= heightRatio) {
+					// 캔버스보다 브라우저 창이 홀쭉한 경우
+					canvasScaleRatio = heightRatio;
+				} else {
+					// 캔버스보다 브라우저 창이 납작한 경우
+					canvasScaleRatio = widthRatio;
+				}
+
+				objs.canvas.style.transform = `scale(${canvasScaleRatio})`;
+				objs.context.drawImage(objs.images[0], 0, 0);
+
 				break;
 		}
 	}
