@@ -31,27 +31,45 @@
 				messageB: document.querySelector("#scroll-section-0 .main-message--b"),
 				messageC: document.querySelector("#scroll-section-0 .main-message--c"),
 				messageD: document.querySelector("#scroll-section-0 .main-message--d"),
+				canvas: document.querySelector('#video-canvas-0'),
+				context: document.querySelector('#video-canvas-0').getContext('2d'),
+				videoImages: []
 			},
 			values: {
 				/* 
 					start, end는 스크롤 이벤트가 작동하는 비율이므로 소수점 단위이다
 					메시지 A는 10%~20%, B는 30%~40%
+					등장하는 기준과 완전히 사라지는 기준의 중간 지점이 시작 지점이다
 				 */
+				videoImageCount: 300, // 이미지의 총 갯수는 300개
+				imagesSequence: [0, 299], // 이미지의 파일명이 0인 것부터 299까지
+				canvas_opacity: [1, 0, {start: 0.9, end: 1}], // canvas가 사라질 때의 opacity 애니메이션 셋팅
 				messageA_opacity_in: [0, 1, { start: 0.1, end: 0.2 }],
-				messageA_opacity_out: [1, 0, { start: 0.25, end: 0.3 }],
-				//  등장하는 기준과 완전히 사라지는 기준의 중간 지점이 시작 지점이다
-				messageA_translateY_in: [20, 0, { start: 0.1, end: 0.2 }],
-				messageA_translateY_out: [0, -20, { start: 0.25, end: 0.3 }],
 				messageB_opacity_in: [0, 1, { start: 0.3, end: 0.4 }],
+				messageC_opacity_in: [0, 1, { start: 0.5, end: 0.6 }],
+				messageD_opacity_in: [0, 1, { start: 0.7, end: 0.8 }],
+				messageA_translateY_in: [20, 0, { start: 0.1, end: 0.2 }],
+				messageB_translateY_in: [20, 0, { start: 0.3, end: 0.4 }],
+				messageC_translateY_in: [20, 0, { start: 0.5, end: 0.6 }],
+				messageD_translateY_in: [20, 0, { start: 0.7, end: 0.8 }],
+				messageA_opacity_out: [1, 0, { start: 0.25, end: 0.3 }],
+				messageB_opacity_out: [1, 0, { start: 0.45, end: 0.5 }],
+				messageC_opacity_out: [1, 0, { start: 0.65, end: 0.7 }],
+				messageD_opacity_out: [1, 0, { start: 0.85, end: 0.9 }],
+				messageA_translateY_out: [0, -20, { start: 0.25, end: 0.3 }],
+				messageB_translateY_out: [0, -20, { start: 0.45, end: 0.5 }],
+				messageC_translateY_out: [0, -20, { start: 0.65, end: 0.7 }],
+				messageD_translateY_out: [0, -20, { start: 0.85, end: 0.9 }],
 			},
 		},
 		{
 			// 1
 			type: "normal",
-			heightNum: 5,
+			// heightNum: 5, // type normal에서는 필요 없음
 			scrollHeight: 0,
 			objs: {
 				container: document.querySelector("#scroll-section-1"),
+				content: document.querySelector("#scroll-section-1 .description"),
 			},
 		},
 		{
@@ -61,6 +79,31 @@
 			scrollHeight: 0,
 			objs: {
 				container: document.querySelector("#scroll-section-2"),
+				messageA: document.querySelector("#scroll-section-2 .msg--a"),
+				messageB: document.querySelector("#scroll-section-2 .msg--b"),
+				messageC: document.querySelector("#scroll-section-2 .msg--c"),
+				pinB: document.querySelector("#scroll-section-2 .msg--b .pin"),
+				pinC: document.querySelector("#scroll-section-2 .msg--c .pin"),
+			},
+			values: {
+				messageA_translateY_in: [20, 0, { start: 0.15, end: 0.2 }],
+				messageB_translateY_in: [30, 0, { start: 0.5, end: 0.55 }],
+				messageC_translateY_in: [30, 0, { start: 0.72, end: 0.77 }],
+				messageA_opacity_in: [0, 1, { start: 0.15, end: 0.2 }],
+				messageB_opacity_in: [0, 1, { start: 0.5, end: 0.55 }],
+				messageC_opacity_in: [0, 1, { start: 0.72, end: 0.77 }],
+				messageA_translateY_out: [0, -20, { start: 0.3, end: 0.35 }],
+				messageB_translateY_out: [0, -20, { start: 0.58, end: 0.63 }],
+				messageC_translateY_out: [0, -20, { start: 0.85, end: 0.9 }],
+				messageA_opacity_out: [1, 0, { start: 0.3, end: 0.35 }],
+				messageB_opacity_out: [1, 0, { start: 0.58, end: 0.63 }],
+				messageC_opacity_out: [1, 0, { start: 0.85, end: 0.9 }],
+				pinB_scaleY: [0.5, 1, { start: 0.5, end: 0.55 }],
+				pinC_scaleY: [0.5, 1, { start: 0.72, end: 0.77 }],
+				pinB_opacity_in: [0, 1, { start: 0.5, end: 0.55 }],
+				pinC_opacity_in: [0, 1, { start: 0.72, end: 0.77 }],
+				pinB_opacity_out: [1, 0, { start: 0.58, end: 0.63 }],
+				pinC_opacity_out: [1, 0, { start: 0.85, end: 0.9 }],
 			},
 		},
 		{
@@ -70,16 +113,36 @@
 			scrollHeight: 0,
 			objs: {
 				container: document.querySelector("#scroll-section-3"),
+				canvasCaption: document.querySelector(".canvas-caption"),
 			},
+			values: {},
 		},
 	];
+
+
+	function setCanvasImages() {
+		let imgElem;
+		for (let index = 0; index < sceneInfo[0].values.videoImageCount; index++) {
+			/**	
+			 * 객체 생성
+			 * new Image(); 혹은
+			 * document.createElement('img')
+			 * 로 객체를 생성한다
+			 **/
+			imgElem = document.createElement('img');
+			imgElem.src = `./video/001/IMG_${6726 + index}.JPG`;
+			sceneInfo[0].objs.videoImages.push(imgElem);
+			/* 첫번째 씬에 해당하는 배열인 sceneInfo[0]에 설정을 해준다. */
+		}
+	}
+	setCanvasImages();
 
 	function setLayout() {
 		// 각 스크롤 섹션의 높이 셋팅
 		for (let i = 0; i < sceneInfo.length; i++) {
 			if (sceneInfo[i].type === "sticky") {
 				sceneInfo[i].scrollHeight = sceneInfo[i].heightNum * window.innerHeight;
-			} else if(sceneInfo[i].type === 'normal') {
+			} else if (sceneInfo[i].type === "normal") {
 				sceneInfo[i].scrollHeight = sceneInfo[i].objs.container.offsetHeight;
 			}
 			sceneInfo[i].objs.container.style.height = `${sceneInfo[i].scrollHeight}px`;
@@ -101,6 +164,20 @@
 				/* scrollheight를 더하다가 현재 페이지의 y offset과 같거나 작을 때 더하는 것을 멈춰준다. */
 			}
 		}
+		document.body.setAttribute('id', `show-scene-${currentScene}`);
+
+		const heightRatio = window.innerHeight / 1080; 
+		/*
+			이미지의 기준이 되는 1920 * 1080에서 높이에 해당하는 1080로 현재 창이 가지고 있는 높이를 나눌 경우
+			1080 대비 현재 창의 높이의 비율을 구할 수 있다.
+			비율에 맞게 scale을 변경 시 위치 값이 맞지 않으므로 가운데에 위치할 수 있도록
+			css를 수정한다.
+			-> canvas의 위치를 50%씩 옮긴 후 translate로 다시 -50%씩 움직여 가운데로 정렬이 되도록 한다.
+		 */
+		sceneInfo[0].objs.canvas.style.transform = `translate3d(-50%, -50%, 0) scale(${heightRatio})`;
+
+
+
 	}
 
 	function calcValues(values, currentYOffset) {
@@ -155,6 +232,7 @@
 		switch (currentScene) {
 			case 0:
 				// console.log('0 play');
+			
 				/*
 					변수처리 했던 부분을 in/out일 경우에 계산하도록 
 					안에 넣어줌으로써 조금 더 연산할 때의 효율을 높일 수 있다.
@@ -162,12 +240,66 @@
 				if (scrollRatio <= 0.22) {
 					// in
 					objs.messageA.style.opacity = calcValues(values.messageA_opacity_in, currentYOffset);
-					objs.messageA.style.transform = `translateY(${calcValues(values.messageA_translateY_in, currentYOffset)}%)`;
+					objs.messageA.style.transform = `translate3d(0, ${calcValues(values.messageA_translateY_in, currentYOffset)}%, 0)`;
 				} else {
 					// out
 					objs.messageA.style.opacity = calcValues(values.messageA_opacity_out, currentYOffset);
-					objs.messageA.style.transform = `translateY(${calcValues(values.messageA_translateY_out, currentYOffset)}%)`;
+					objs.messageA.style.transform = `translate3d(0, ${calcValues(values.messageA_translateY_out, currentYOffset)}%, 0)`;
 				}
+
+				if (scrollRatio <= 0.42) {
+					// in
+					objs.messageB.style.opacity = calcValues(values.messageB_opacity_in, currentYOffset);
+					objs.messageB.style.transform = `translate3d(0, ${calcValues(values.messageB_translateY_in, currentYOffset)}%, 0)`;
+				} else {
+					// out
+					objs.messageB.style.opacity = calcValues(values.messageB_opacity_out, currentYOffset);
+					objs.messageB.style.transform = `translate3d(0, ${calcValues(values.messageB_translateY_out, currentYOffset)}%, 0)`;
+				}
+
+				if (scrollRatio <= 0.62) {
+					// in
+					objs.messageC.style.opacity = calcValues(values.messageC_opacity_in, currentYOffset);
+					objs.messageC.style.transform = `translate3d(0, ${calcValues(values.messageC_translateY_in, currentYOffset)}%, 0)`;
+				} else {
+					// out
+					objs.messageC.style.opacity = calcValues(values.messageC_opacity_out, currentYOffset);
+					objs.messageC.style.transform = `translate3d(0, ${calcValues(values.messageC_translateY_out, currentYOffset)}%, 0)`;
+				}
+
+				if (scrollRatio <= 0.82) {
+					// in
+					objs.messageD.style.opacity = calcValues(values.messageD_opacity_in, currentYOffset);
+					objs.messageD.style.transform = `translate3d(0, ${calcValues(values.messageD_translateY_in, currentYOffset)}%, 0)`;
+				} else {
+					// out
+					objs.messageD.style.opacity = calcValues(values.messageD_opacity_out, currentYOffset);
+					objs.messageD.style.transform = `translate3d(0, ${calcValues(values.messageD_translateY_out, currentYOffset)}%, 0)`;
+				}
+
+				/* 
+					비디오의 경우 마우스를 스크롤 할 동안 계속 재생이 되므로
+					구간에 대한 설정을 따로 하지 않고 시작 값과 종료 값만 적어주면 된다.
+				*/
+				let sequence = Math.round(calcValues(values.imagesSequence, currentYOffset));
+				// console.log(sequence);
+				/* 
+					canvas에 그리기 위해 context를 사용하여 이미지 객체를 그린다.
+					objs.context.drawImage(그릴 이미지 src, x좌표, y좌표)
+					
+					[캔버스의 사이즈를 바꾸는 방법]은 
+					1. 스크립트로 width, height를 조정 (html에 canvas로 접근) - canvas가 가진 픽셀 수 자체를 변경
+					2. css로 스케일을 조절한다.
+
+					성능에 더 도움이 되는 방법은 css로 조정하는 것이다.
+					스케일을 조정해서 창에 맞게 이미지가 들어가게 한다.
+					==> height를 창에 꽉차게 조절하는 것이 가장 모든 레이아웃에 맞는 방법이다.
+
+					### canvas의 경우 한번만 실행되면 되므로 비율에 따라 애니메이션을 구분하지 않아도 된다.
+				*/
+
+				objs.context.drawImage(objs.videoImages[sequence], 0, 0);
+				objs.canvas.style.opacity = calcValues(values.canvas_opacity, currentYOffset);
 
 				break;
 			case 1:
@@ -175,6 +307,40 @@
 				break;
 			case 2:
 				// console.log('2 play');
+				if (scrollRatio <= 0.25) {
+					// in
+					objs.messageA.style.opacity = calcValues(values.messageA_opacity_in, currentYOffset);
+					objs.messageA.style.transform = `translate3d(0, ${calcValues(values.messageA_translateY_in, currentYOffset)}%, 0)`;
+				} else {
+					// out
+					objs.messageA.style.opacity = calcValues(values.messageA_opacity_out, currentYOffset);
+					objs.messageA.style.transform = `translate3d(0, ${calcValues(values.messageA_translateY_out, currentYOffset)}%, 0)`;
+				}
+
+				if (scrollRatio <= 0.57) {
+					// in
+					objs.messageB.style.transform = `translate3d(0, ${calcValues(values.messageB_translateY_in, currentYOffset)}%, 0)`;
+					objs.messageB.style.opacity = calcValues(values.messageB_opacity_in, currentYOffset);
+					objs.pinB.style.transform = `scaleY(${calcValues(values.pinB_scaleY, currentYOffset)})`;
+				} else {
+					// out
+					objs.messageB.style.transform = `translate3d(0, ${calcValues(values.messageB_translateY_out, currentYOffset)}%, 0)`;
+					objs.messageB.style.opacity = calcValues(values.messageB_opacity_out, currentYOffset);
+					objs.pinB.style.transform = `scaleY(${calcValues(values.pinB_scaleY, currentYOffset)})`;
+				}
+
+				if (scrollRatio <= 0.83) {
+					// in
+					objs.messageC.style.transform = `translate3d(0, ${calcValues(values.messageC_translateY_in, currentYOffset)}%, 0)`;
+					objs.messageC.style.opacity = calcValues(values.messageC_opacity_in, currentYOffset);
+					objs.pinC.style.transform = `scaleY(${calcValues(values.pinC_scaleY, currentYOffset)})`;
+				} else {
+					// out
+					objs.messageC.style.transform = `translate3d(0, ${calcValues(values.messageC_translateY_out, currentYOffset)}%, 0)`;
+					objs.messageC.style.opacity = calcValues(values.messageC_opacity_out, currentYOffset);
+					objs.pinC.style.transform = `scaleY(${calcValues(values.pinC_scaleY, currentYOffset)})`;
+				}
+				
 				break;
 			case 3:
 				// console.log('3 play');
@@ -238,8 +404,23 @@
 		scrollLoop();
 	});
 	// window.addEventListener('DOMContentLoaded', setLayout); // 이미지, 비디오 등 모든 리소스들이 불러와졌을 때 실행
-	window.addEventListener("load", setLayout); // 리소스는 불러와지지 않고 구조만 불러와졌더라도 실행된다.
+	window.addEventListener("load", () => {
+		setLayout();
+
+		/*
+			익명의 함수로 선언해서 layout을 그리고 이후에 초기 셋팅을 작성해서
+			화면을 처음 불러 왔을 때에도 이미지로 만든 비디오가 그려질 수 있도록 작업한다.
+		*/
+
+		sceneInfo[0].objs.context.drawImage(sceneInfo[0].objs.videoImages[0], 0, 0);
+		// 이미지의 첫번째 이미지가 나오면 되므로 objs.videoImages[0]로 셋팅한다.
+
+	}); // 리소스는 불러와지지 않고 구조만 불러와졌더라도 실행된다.
 	window.addEventListener("resize", setLayout); // 윈도우 창이 바뀌면 높이 자동설정되도록 변경
+	/* 
+		setLayout의 경우 문서가 load, resize시에 모두 실행이 되므로
+		canvas 비디오의 이미지 사이즈는 setLayout에서 실행하는 것이 적절하다.
+	 */
 
 	// setLayout();
 })();

@@ -28,10 +28,12 @@ a {
 }
 
 .global-nav {
+	z-index: 10;
 	top: 0;
 	height: 44px;
 }
 .local-nav {
+	z-index: 11;
 	top: 45px;
 	height: 52px;
 	border-bottom: 1px solid #ddd;
@@ -79,13 +81,16 @@ a {
 
 /* section */
 .scroll-section {
-	border: 3px solid red;
 	padding-top: 50vh;
 	/* 뷰포트 높이 */
 	/* 브라우저 높이의 절반만큼 padding을 준다 */
 }
 
 #scroll-section-0 h1 {
+	/* 이미지보다 z-index가 위로 올라오도록 설정하기 위해 position을 relative로 설정한다; */
+	position: relative;
+	z-index: 5;
+	top: -10vh;
 	font-size: 4rem;
 	font-weight: 900;
 	/* html 기본 폰트 사이즈 * 4 */
@@ -183,6 +188,7 @@ a {
 	color: #888;
 	font-size: 1.2rem;
 }
+
 .footer {
 	display: flex;
 	align-items: center;
@@ -204,6 +210,18 @@ a {
 #show-scene-2 #scroll-section-2 .sticky-elem,
 #show-scene-3 #scroll-section-3 .sticky-elem {
 	display: block;
+}
+
+
+.stick-elem-canvas {
+	top: 0;
+	height: 100%;
+}
+
+.stick-elem-canvas canvas {
+	position: absolute;
+	top: 50%;
+	left: 50%;
 }
 
 
