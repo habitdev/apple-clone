@@ -135,6 +135,7 @@
 				rect1X: [0, 0, { start: 0, end: 0 }],
 				rect2X: [0, 0, { start: 0, end: 0 }],
 				rectStartY: 0,
+				blendHeight: [0, 0, { start: 0, end: 0 }], // 이미지 블렌드가 시작되는 y좌표
 			},
 		},
 	];
@@ -403,7 +404,7 @@
 					}
 
 					objs.canvas.style.transform = `scale(${canvasScaleRatio})`;
-					objs.context.fillStyle = 'white';
+					objs.context.fillStyle = "white";
 					objs.context.drawImage(objs.images[0], 0, 0);
 
 					// 캔버스 사이즈에 맞춰 가정한 innerWidth와 innerHeight
@@ -417,18 +418,8 @@
 					values.rect2X[1] = values.rect2X[0] + whiteRectWidth;
 
 					// 좌우 흰색 박스 그리기
-					objs.context.fillRect(
-						parseInt(values.rect1X[0]),
-						0,
-						parseInt(whiteRectWidth),
-						objs.canvas.height
-					);
-					objs.context.fillRect(
-						parseInt(values.rect2X[0]),
-						0,
-						parseInt(whiteRectWidth),
-						objs.canvas.height
-					);
+					objs.context.fillRect(parseInt(values.rect1X[0]), 0, parseInt(whiteRectWidth), objs.canvas.height);
+					objs.context.fillRect(parseInt(values.rect2X[0]), 0, parseInt(whiteRectWidth), objs.canvas.height);
 				}
 
 				break;
@@ -515,24 +506,34 @@
 				objs.context.fillRect(parseInt(calcValues(values.rect1X, currentYOffset)), 0, parseInt(whiteRectWidth), objs.canvas.height);
 				objs.context.fillRect(parseInt(calcValues(values.rect2X, currentYOffset)), 0, parseInt(whiteRectWidth), objs.canvas.height);
 
-				/* 캔버스가 브라우저 상단에 닿지 않았다면 */ 
-				if(scrollRatio < values.rect1X[2].end) { // 스크롤 이벤트의 종료지점보다 작은 경우
+				/* 캔버스가 브라우저 상단에 닿지 않았다면 */
+				if (scrollRatio < values.rect1X[2].end) {
+					// 스크롤 이벤트의 종료지점보다 작은 경우
 					step = 1;
-					console.log('캔버스 닿기 전');
-					objs.canvas.classList.remove('sticky');
-
+					objs.canvas.classList.remove("sticky");
 				} else {
-					/* 캔버스가 브라우저 상단에 닿았다면 */ 
+					/* 캔버스가 브라우저 상단에 닿았다면 */
 					step = 2;
-					console.log('캔버스 닿은 후');
-					// 이미지 블렌드 canvas에 class를 추가한다.
-					objs.canvas.classList.add('sticky');
-					// 조정된 canvas의 크기만큼 위로 당겨줘야 한다.
-					objs.canvas.style.top =`${-(objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2}px`;
-					
-
 
 					/* 블렌딩된 이미지가 스크롤 된 이후 */
+					// blendHeight: [0, 0, { start: 0, end: 0 }]
+					values.blendHeight[0] = 0;
+					values.blendHeight[1] = objs.canvas.height;
+					values.blendHeight[2].start = values.rect1X[2].end; // 첫번째 애니메이션이 끝날 때
+					values.blendHeight[2].end = values.blendHeight[2].start + 0.2;
+					const blendHeight = calcValues(values.blendHeight, currentYOffset);
+
+					// 바다 이미지 그리기
+					// width, height 값을 넣지 않으면 원래 이미지 크기대로 그린다.
+					objs.context.drawImage(objs.images[1], 
+						0, objs.canvas.height - blendHeight, objs.canvas.width, blendHeight, //sx, sy, swidth, sheight
+						0, objs.canvas.height - blendHeight, objs.canvas.width, blendHeight, //dx, dy, dwidth, dheight
+					);
+
+					// 이미지 블렌드 canvas에 class를 추가한다.
+					objs.canvas.classList.add("sticky");
+					// 조정된 canvas의 크기만큼 위로 당겨줘야 한다.
+					objs.canvas.style.top = `${-(objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2}px`;
 				}
 
 				break;

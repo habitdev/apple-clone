@@ -245,9 +245,6 @@ a {
 	top: 0;
 }
 
-.image-blend-canvas canvas {
-}
-
 /* 데스크탑일 경우 */
 @media screen and (min-width: 1024px) {
 	#scroll-section-0 h1 {
