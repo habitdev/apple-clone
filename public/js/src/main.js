@@ -388,13 +388,6 @@
 
 				/* 3번의 canvas를 미리 그려주지 않으면 3에서 canvas가 나올 때 부자연스럽다 */
 				if (scrollRatio > 0.9) {
-					/*
-					blend-canvas의 경우 
-					화면의 크기나 비율에 따라 scale 등의 속성이 유동적으로 변해야 하므로
-					스크롤할 때 마다 계산을 하도록 설정한다.
-
-					==> 가로/세로 모두 꽉 차게 하기 위해 여기서 세팅(계산 필요)
-				 */
 					const objs = sceneInfo[3].objs;
 					const values = sceneInfo[3].values;
 					const widthRatio = window.innerWidth / objs.canvas.width;
@@ -410,28 +403,20 @@
 					}
 
 					objs.canvas.style.transform = `scale(${canvasScaleRatio})`;
-					objs.context.fillStyle = "white";
+					objs.context.fillStyle = 'white';
 					objs.context.drawImage(objs.images[0], 0, 0);
 
 					// 캔버스 사이즈에 맞춰 가정한 innerWidth와 innerHeight
-					/* 
-					innerWidth은 브라우저의 스크롤 바의 크기도 포함한 크기이므로 
-					정확한 내부의 크기를 구하기 위해 body의 폭을 이용한다.
-				*/
-					// console.log(window.innerWidth, document.body.offsetWidth);
-					// console.log(window.innerWidth - document.body.offsetWidth);
 					const recalculatedInnerWidth = document.body.offsetWidth / canvasScaleRatio;
 					const recalculatedInnerHeight = window.innerHeight / canvasScaleRatio;
 
 					const whiteRectWidth = recalculatedInnerWidth * 0.15;
-					// 왼쪽 박스
 					values.rect1X[0] = (objs.canvas.width - recalculatedInnerWidth) / 2;
 					values.rect1X[1] = values.rect1X[0] - whiteRectWidth;
-
-					// 오른쪽 박스
 					values.rect2X[0] = values.rect1X[0] + recalculatedInnerWidth - whiteRectWidth;
 					values.rect2X[1] = values.rect2X[0] + whiteRectWidth;
 
+					// 좌우 흰색 박스 그리기
 					objs.context.fillRect(
 						parseInt(values.rect1X[0]),
 						0,
@@ -451,6 +436,8 @@
 			case 3:
 				// console.log('3 play');
 
+				let step = 0;
+
 				/*
 					blend-canvas의 경우 
 					화면의 크기나 비율에 따라 scale 등의 속성이 유동적으로 변해야 하므로
@@ -459,7 +446,8 @@
 					==> 가로/세로 모두 꽉 차게 하기 위해 여기서 세팅(계산 필요)
 				 */
 
-				const widthRatio = window.innerWidth / objs.canvas.width; // 원래 캔버스 크기 분의 브라우저의 폭을 계산 => 비율을 구한다.
+				const widthRatio = window.innerWidth / objs.canvas.width;
+				// 원래 캔버스 크기 분의 브라우저의 폭을 계산 => 비율을 구한다.
 				const heightRatio = window.innerHeight / objs.canvas.height;
 				let canvasScaleRatio;
 
@@ -501,8 +489,7 @@
 						더한 값은 위와 아래의 여백을 더한 값과 동일하므로 2로 나눈다.
 					 */
 					// values.rectStartY = objs.canvas.getBoundingClientRect().top;
-					values.rectStartY = objs.canvas.offsetTop - (objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2;
-					console.log(values.rectStartY);
+					values.rectStartY = objs.canvas.offsetTop + (objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2;
 
 					values.rect1X[2].start = window.innerHeight / 2 / scrollHeight;
 					values.rect2X[2].start = window.innerHeight / 2 / scrollHeight;
@@ -527,6 +514,26 @@
 				// objs.context.fillRect(values.rect2X[0], 0, parseInt(whiteRectWidth), objs.canvas.height);
 				objs.context.fillRect(parseInt(calcValues(values.rect1X, currentYOffset)), 0, parseInt(whiteRectWidth), objs.canvas.height);
 				objs.context.fillRect(parseInt(calcValues(values.rect2X, currentYOffset)), 0, parseInt(whiteRectWidth), objs.canvas.height);
+
+				/* 캔버스가 브라우저 상단에 닿지 않았다면 */ 
+				if(scrollRatio < values.rect1X[2].end) { // 스크롤 이벤트의 종료지점보다 작은 경우
+					step = 1;
+					console.log('캔버스 닿기 전');
+					objs.canvas.classList.remove('sticky');
+
+				} else {
+					/* 캔버스가 브라우저 상단에 닿았다면 */ 
+					step = 2;
+					console.log('캔버스 닿은 후');
+					// 이미지 블렌드 canvas에 class를 추가한다.
+					objs.canvas.classList.add('sticky');
+					// 조정된 canvas의 크기만큼 위로 당겨줘야 한다.
+					objs.canvas.style.top =`${-(objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2}px`;
+					
+
+
+					/* 블렌딩된 이미지가 스크롤 된 이후 */
+				}
 
 				break;
 		}
