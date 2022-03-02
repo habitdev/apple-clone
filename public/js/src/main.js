@@ -136,6 +136,8 @@
 				rect2X: [0, 0, { start: 0, end: 0 }],
 				blendHeight: [0, 0, { start: 0, end: 0 }], // 이미지 블렌드가 시작되는 y좌표
 				canvas_scale: [0, 0, { start: 0, end: 0 }],
+				canvasCaption_opacity: [0, 1, { start: 0, end: 0 }],
+				canvasCaption_translateY: [20, 0, { start: 0, end: 0 }],
 				rectStartY: 0,
 			},
 		},
@@ -171,6 +173,18 @@
 		}
 	}
 	setCanvasImages();
+
+	function checkMenu() {
+		if (yOffset > 44) {
+			/*
+				yOffset는 따로 만들었던 변수로 = window.pageYOffset
+			 */
+
+			document.body.classList.add("local-nav-sticky");
+		} else {
+			document.body.classList.remove("local-nav-sticky");
+		}
+	}
 
 	function setLayout() {
 		// 각 스크롤 섹션의 높이 셋팅
@@ -526,9 +540,16 @@
 
 					// 바다 이미지 그리기
 					// width, height 값을 넣지 않으면 원래 이미지 크기대로 그린다.
-					objs.context.drawImage(objs.images[1], 
-						0, objs.canvas.height - blendHeight, objs.canvas.width, blendHeight, //sx, sy, swidth, sheight
-						0, objs.canvas.height - blendHeight, objs.canvas.width, blendHeight, //dx, dy, dwidth, dheight
+					objs.context.drawImage(
+						objs.images[1],
+						0,
+						objs.canvas.height - blendHeight,
+						objs.canvas.width,
+						blendHeight, //sx, sy, swidth, sheight
+						0,
+						objs.canvas.height - blendHeight,
+						objs.canvas.width,
+						blendHeight //dx, dy, dwidth, dheight
 					);
 
 					// 이미지 블렌드 canvas에 class를 추가한다.
@@ -536,7 +557,7 @@
 					// 조정된 canvas의 크기만큼 위로 당겨줘야 한다.
 					objs.canvas.style.top = `${-(objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2}px`;
 
-					if(scrollRatio > values.blendHeight[2].end) {
+					if (scrollRatio > values.blendHeight[2].end) {
 						// console.log('축소시작');
 						values.canvas_scale[0] = canvasScaleRatio; // 초기 사이즈 설정
 						values.canvas_scale[1] = document.body.offsetWidth / (objs.canvas.width * 1.5); // 축소가 끝나는 사이즈 설정
@@ -548,16 +569,33 @@
 						objs.canvas.style.marginTop = 0;
 					}
 
-					if(scrollRatio > values.canvas_scale[2].end && values.canvas_scale[2].end > 0) { // 바다 이미지 애니메이션이 끝난 후 && canvas_scale이 셋팅이 되고 난 후
+					if (scrollRatio > values.canvas_scale[2].end && values.canvas_scale[2].end > 0) {
+						// 바다 이미지 애니메이션이 끝난 후 && canvas_scale이 셋팅이 되고 난 후
 
 						/*
 							바다이미지의 position이 fixed로 바뀌면 아래에 위치한 caption은 상단에 위치하게 되므로 올바른 위치에 오게 하기 위해선
 							바다 이미지의 애니메이션이 끝나는 지점까지 한 스크롤의 양만큼 margin-top으로 조절해주면 된다.
 						 */
 
-						objs.canvas.classList.remove('sticky');
-						objs.canvas.style.marginTop = `${scrollHeight * 0.4}px`
+						objs.canvas.classList.remove("sticky");
+						objs.canvas.style.marginTop = `${scrollHeight * 0.4}px`;
 
+						/*
+							캔버스의 sticky 클래스가 없어짐과 동시에
+							아래의 있는 글의 opacity의 값과 위치 값이 변하도록 설정한다.
+						 */
+						/* 
+							opacity와 translate가 시작하고 끝나는 시점 지정
+							동시에 적용되므로 opacity의 시점을 넣어도 된다.
+						 */
+						values.canvasCaption_opacity[2].start = values.canvas_scale[2].end;
+						values.canvasCaption_opacity[2].end = values.canvasCaption_opacity[2].start + 0.1;
+						values.canvasCaption_translateY[2].start = values.canvasCaption_opacity[2].start;
+						values.canvasCaption_translateY[2].end = values.canvasCaption_opacity[2].end;
+
+						/* 적용 */
+						objs.canvasCaption.style.opacity = calcValues(values.canvasCaption_opacity, currentYOffset);
+						objs.canvasCaption.style.transform = `translate3d(0, ${calcValues(values.canvasCaption_translateY, currentYOffset)}%, 0)`;
 					}
 				}
 
@@ -619,7 +657,9 @@
 		// 스크롤 시 적용되는 익명의 함수 선언
 		yOffset = window.pageYOffset;
 		scrollLoop();
+		checkMenu();
 	});
+	
 	// window.addEventListener('DOMContentLoaded', setLayout); // 이미지, 비디오 등 모든 리소스들이 불러와졌을 때 실행
 	window.addEventListener("load", () => {
 		setLayout();
