@@ -134,8 +134,9 @@
 				*/
 				rect1X: [0, 0, { start: 0, end: 0 }],
 				rect2X: [0, 0, { start: 0, end: 0 }],
-				rectStartY: 0,
 				blendHeight: [0, 0, { start: 0, end: 0 }], // 이미지 블렌드가 시작되는 y좌표
+				canvas_scale: [0, 0, { start: 0, end: 0 }],
+				rectStartY: 0,
 			},
 		},
 	];
@@ -520,7 +521,7 @@
 					values.blendHeight[0] = 0;
 					values.blendHeight[1] = objs.canvas.height;
 					values.blendHeight[2].start = values.rect1X[2].end; // 첫번째 애니메이션이 끝날 때
-					values.blendHeight[2].end = values.blendHeight[2].start + 0.2;
+					values.blendHeight[2].end = values.blendHeight[2].start + 0.2; // 첫번째 구간의 20%의 구간에서만 재생되게 하겠다.
 					const blendHeight = calcValues(values.blendHeight, currentYOffset);
 
 					// 바다 이미지 그리기
@@ -534,6 +535,21 @@
 					objs.canvas.classList.add("sticky");
 					// 조정된 canvas의 크기만큼 위로 당겨줘야 한다.
 					objs.canvas.style.top = `${-(objs.canvas.height - objs.canvas.height * canvasScaleRatio) / 2}px`;
+
+					if(scrollRatio > values.blendHeight[2].end) {
+						// console.log('축소시작');
+						values.canvas_scale[0] = canvasScaleRatio; // 초기 사이즈 설정
+						values.canvas_scale[1] = document.body.offsetWidth / (objs.canvas.width * 1.5); // 축소가 끝나는 사이즈 설정
+
+						values.canvas_scale[2].start = values.blendHeight[2].end;
+						values.canvas_scale[2].end = values.canvas_scale[2].start + 0.2;
+
+						objs.canvas.style.transform = `scale(${calcValues(values.canvas_scale, currentYOffset)})`;
+					}
+
+					if(scrollRatio > values.canvas_scale[2].end && values.canvas_scale[2].end > 0) { // 바다 이미지 애니메이션이 끝난 후
+					// canvas_scale이 셋팅이 되고 난 후
+					}
 				}
 
 				break;
