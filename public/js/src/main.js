@@ -545,10 +545,19 @@
 						values.canvas_scale[2].end = values.canvas_scale[2].start + 0.2;
 
 						objs.canvas.style.transform = `scale(${calcValues(values.canvas_scale, currentYOffset)})`;
+						objs.canvas.style.marginTop = 0;
 					}
 
-					if(scrollRatio > values.canvas_scale[2].end && values.canvas_scale[2].end > 0) { // 바다 이미지 애니메이션이 끝난 후
-					// canvas_scale이 셋팅이 되고 난 후
+					if(scrollRatio > values.canvas_scale[2].end && values.canvas_scale[2].end > 0) { // 바다 이미지 애니메이션이 끝난 후 && canvas_scale이 셋팅이 되고 난 후
+
+						/*
+							바다이미지의 position이 fixed로 바뀌면 아래에 위치한 caption은 상단에 위치하게 되므로 올바른 위치에 오게 하기 위해선
+							바다 이미지의 애니메이션이 끝나는 지점까지 한 스크롤의 양만큼 margin-top으로 조절해주면 된다.
+						 */
+
+						objs.canvas.classList.remove('sticky');
+						objs.canvas.style.marginTop = `${scrollHeight * 0.4}px`
+
 					}
 				}
 
